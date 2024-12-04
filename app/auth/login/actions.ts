@@ -31,7 +31,7 @@ export async function login(
 ): Promise<LoginState> {
   // Rate limiting
   const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1"
-  const isAllowed = rateLimit(`login_${ip}`, 3, 5 * 60 * 1000) // 3 attempts per 5 minutes
+  const isAllowed = rateLimit(`login_${ip}`, 3) // 3 attempts per minute
 
   if (!isAllowed) {
     return {
@@ -78,5 +78,5 @@ export async function login(
 
 export async function logout() {
   await deleteSession()
-  redirect("/login")
+  redirect("/auth/login")
 }
