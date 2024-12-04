@@ -17,6 +17,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Database Schema](#database-schema)
+- [Credits](#credits)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -200,6 +201,23 @@ The application uses Supabase PostgreSQL with the following main tables:
 - Users (Authentication and profiles)
 - Wishlists (User's wish lists)
 - WishlistItems (Individual items in lists)
+
+## Credits
+
+- [IT-University of Sweden](https://www.ithsdistans.se/)
+
+### Documentation
+
+- [Supabase Documentation](https://supabase.com/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+- [DaisyUI Documentation](https://daisyui.com/docs)
+- [Jose JWT](https://github.com/panva/jose)
+
+### Tutorials
+
+- [Cosden Solutions](https://www.youtube.com/watch?v=AcYF18oGn6Y)
+- [Pluralsight Tutorial](https://app.pluralsight.com/)
 
 ## Contributing
 
