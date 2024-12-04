@@ -12,7 +12,13 @@ export default {
   },
   plugins: [daisyui],
   daisyui: {
-    themes: ["sunset"],
+    themes: ["sunset", "pastel"],
   },
-  safelist: ["btn", "btn-accent", "btn-ghost", "container-wrapper"],
+  safelist: [
+    "btn",
+    "btn-accent",
+    "btn-ghost",
+    "container-wrapper",
+    "theme-controller",
+  ],
 } satisfies Config

@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang="en" data-theme="sunset">
       <body className="flex min-h-screen flex-col">
         <Navbar />
-        <main className="container-wrapper grow py-8">{children}</main>
+        <main className="grow py-8">
+          <div className="container-wrapper">{children}</div>
+        </main>
         <Footer />
       </body>
     </html>
