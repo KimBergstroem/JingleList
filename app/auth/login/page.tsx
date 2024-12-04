@@ -9,7 +9,8 @@ export default function Login() {
         <h1 className="mb-4 text-4xl font-bold">Login</h1>
         <LoginForm />
         <p className="mt-4 text-sm text-gray-500">
-          Don&apos;t have an account? <Link href="/register">Register</Link>
+          Don&apos;t have an account?{" "}
+          <Link href="/auth/register">Register</Link>
         </p>
       </div>
     </>

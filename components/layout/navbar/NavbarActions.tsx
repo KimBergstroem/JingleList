@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { ProfileIcon, SettingsIcon } from "@/components/ui/icons"
-import { logout } from "@/app/login/actions"
+import { logout } from "@/app/auth/login/actions"
 
 type NavbarActionsProps = {
   userId: string | undefined
@@ -75,7 +75,7 @@ export default function NavbarActions({ userId }: NavbarActionsProps) {
           <UserDropdown userId={userId} />
         </div>
       ) : (
-        <Link href="/login" className="btn btn-ghost">
+        <Link href="/auth/login" className="btn btn-ghost">
           Login
         </Link>
       )}

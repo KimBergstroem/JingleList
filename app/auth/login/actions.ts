@@ -1,15 +1,12 @@
 "use server"
 
 import { redirect } from "next/navigation"
+import bcrypt from "bcrypt"
 import { z } from "zod"
 
-import { createSession, deleteSession } from "../lib/session"
+import { prisma } from "@/lib/db"
 
-const testUser = {
-  id: "1",
-  email: "contact@cosdensolutions.io",
-  password: "12345678",
-}
+import { createSession, deleteSession } from "../../lib/session"
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }).trim(),
@@ -40,7 +37,12 @@ export async function login(
 
   const { email, password } = result.data
 
-  if (email !== testUser.email || password !== testUser.password) {
+  // Get user from database
+  const user = await prisma.user.findUnique({
+    where: { email },
+  })
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     return {
       errors: {
         email: ["Invalid email or password"],
@@ -48,7 +50,7 @@ export async function login(
     }
   }
 
-  await createSession(testUser.id)
+  await createSession(user.id)
 
   redirect("/dashboard")
 
