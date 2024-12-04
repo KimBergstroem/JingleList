@@ -66,14 +66,20 @@ export async function PUT(request: Request) {
       )
     }
 
+    const updateData = {
+      name: validatedFields.data.name,
+      email: validatedFields.data.email,
+    }
+
+    // Lägg bara till image om det finns och inte är null
+    if (validatedFields.data.image !== null) {
+      Object.assign(updateData, { image: validatedFields.data.image })
+    }
+
     // Update the user in the database
     const updatedUser = await prisma.user.update({
       where: { id: session.userId },
-      data: {
-        name: validatedFields.data.name,
-        email: validatedFields.data.email,
-        image: validatedFields.data.image,
-      },
+      data: updateData,
     })
 
     // Return the updated user (without password)
