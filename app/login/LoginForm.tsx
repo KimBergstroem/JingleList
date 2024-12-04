@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
-import { login } from "./actions";
-import styles from "./LoginForm.module.css";
+import { useActionState } from "react"
+import { useFormStatus } from "react-dom"
+
+import { login } from "./actions"
 
 export function LoginForm() {
   const [state, loginAction] = useActionState(login, {
@@ -11,7 +11,7 @@ export function LoginForm() {
       email: [],
       password: [],
     },
-  });
+  })
 
   return (
     <form action={loginAction} className="flex max-w-[300px] flex-col gap-2">
@@ -35,15 +35,15 @@ export function LoginForm() {
       )}
       <SubmitButton />
     </form>
-  );
+  )
 }
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const { pending } = useFormStatus()
 
   return (
     <button disabled={pending} type="submit" className="btn btn-accent">
       Login
     </button>
-  );
+  )
 }
