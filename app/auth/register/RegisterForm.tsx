@@ -4,7 +4,11 @@ import { useActionState } from "react"
 
 import { register } from "./actions"
 
-export function RegisterForm() {
+type Props = {
+  csrfToken: string
+}
+
+export function RegisterForm({ csrfToken }: Props) {
   const [state, registerAction] = useActionState(register, {
     errors: {
       email: [],
@@ -15,6 +19,12 @@ export function RegisterForm() {
 
   return (
     <form action={registerAction} className="flex max-w-[300px] flex-col gap-2">
+      <input type="hidden" name="csrf_token" value={csrfToken} />
+
+      {state?.errors?._form && (
+        <p className="text-red-500">{state.errors._form}</p>
+      )}
+
       <div className="flex flex-col gap-2">
         <input id="name" name="name" placeholder="Name" />
       </div>
