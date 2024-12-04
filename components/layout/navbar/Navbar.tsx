@@ -2,6 +2,7 @@ import { cookies } from "next/headers"
 import Link from "next/link"
 
 import { MenuIcon } from "@/components/ui/icons"
+import SearchBar from "@/components/ui/SearchBar"
 import ToggleTheme from "@/components/ui/ToggleTheme"
 import { decrypt } from "@/app/lib/session"
 
@@ -57,7 +58,9 @@ export default async function Navbar() {
           JingleList
         </Link>
       </div>
+
       <NavbarActions userId={session?.userId} />
+      <SearchBar />
       <ToggleTheme />
     </div>
   )
