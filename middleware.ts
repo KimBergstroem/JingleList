@@ -1,26 +1,41 @@
-import { cookies } from "next/headers"
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
 import { decrypt } from "./app/lib/session"
 
-const protectedRoutes = ["/dashboard", "/profile", "/profile/settings"]
-const publicRoutes = ["/auth/login", "/auth/register"]
-
-export default async function middleware(req: NextRequest) {
-  const path = req.nextUrl.pathname
-  const isProtectedRoute = protectedRoutes.includes(path)
-  const isPublicRoute = publicRoutes.includes(path)
-
-  const cookie = (await cookies()).get("session")?.value
+export async function middleware(request: NextRequest) {
+  const cookie = request.cookies.get("session")?.value
   const session = await decrypt(cookie)
 
-  if (isProtectedRoute && !session?.userId) {
-    return NextResponse.redirect(new URL("/auth/login", req.nextUrl))
+  if (request.nextUrl.pathname === "/" && !session?.userId) {
+    return NextResponse.rewrite(new URL("/landing-page", request.url))
   }
 
-  if (isPublicRoute && session?.userId) {
-    return NextResponse.redirect(new URL("/dashboard", req.nextUrl))
+  if (
+    (request.nextUrl.pathname.startsWith("/dashboard") ||
+      request.nextUrl.pathname.startsWith("/profile")) &&
+    !session?.userId
+  ) {
+    return NextResponse.redirect(new URL("/auth/login", request.url))
+  }
+
+  if (
+    (request.nextUrl.pathname.startsWith("/auth/login") ||
+      request.nextUrl.pathname.startsWith("/auth/register")) &&
+    session?.userId
+  ) {
+    return NextResponse.redirect(new URL("/", request.url))
   }
 
   return NextResponse.next()
+}
+
+export const config = {
+  matcher: [
+    "/",
+    "/dashboard/:path*",
+    "/profile/:path*",
+    "/auth/login",
+    "/auth/register",
+  ],
 }
