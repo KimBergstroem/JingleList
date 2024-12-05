@@ -66,6 +66,9 @@ export default function UserDropdown({ userId }: { userId: string }) {
           <Link href="/profile">Profile</Link>
         </li>
         <li>
+          <Link href="/whishlist">My Whishlist</Link>
+        </li>
+        <li>
           <Link href="/profile/settings">Settings</Link>
         </li>
       </ul>

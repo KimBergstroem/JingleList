@@ -13,7 +13,8 @@ export async function middleware(request: NextRequest) {
 
   if (
     (request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/profile")) &&
+      request.nextUrl.pathname.startsWith("/profile") ||
+      request.nextUrl.pathname.startsWith("/whishlist")) &&
     !session?.userId
   ) {
     return NextResponse.redirect(new URL("/auth/login", request.url))
@@ -37,5 +38,6 @@ export const config = {
     "/profile/:path*",
     "/auth/login",
     "/auth/register",
+    "/whishlist",
   ],
 }
