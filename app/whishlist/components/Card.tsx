@@ -3,6 +3,8 @@
 import { format } from "date-fns"
 import { enGB } from "date-fns/locale"
 
+import TrashIcon from "@/components/ui/icons/TrashIcon"
+
 const occasionColors: Record<string, { bg: string; text: string }> = {
   Christmas: { bg: "bg-red-500/20", text: "text-red-300" },
   Birthday: { bg: "bg-purple-500/20", text: "text-purple-300" },
@@ -14,12 +16,22 @@ const occasionColors: Record<string, { bg: string; text: string }> = {
 
 type WishlistCardProps = {
   title: string
-  description?: string
+  description: string
   occasion: string
   createdAt: Date
   itemCount: number
   onClick: () => void
-  isSelected?: boolean
+  onDelete: () => void
+  isSelected: boolean
+}
+
+export type WishlistItem = {
+  id: string
+  title: string
+  description: string
+  price?: number
+  url?: string
+  priority?: "HIGH" | "MEDIUM" | "LOW"
 }
 
 export default function WishlistCard({
@@ -29,7 +41,8 @@ export default function WishlistCard({
   createdAt,
   itemCount,
   onClick,
-  isSelected = false,
+  onDelete,
+  isSelected,
 }: WishlistCardProps) {
   const colors = occasionColors[occasion] || occasionColors.Other
 
@@ -42,7 +55,7 @@ export default function WishlistCard({
           : "border-gray-800 hover:border-indigo-500"
       }`}
     >
-      {/* Occasion/Category at the top */}
+      {/* Occasion  */}
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
@@ -78,6 +91,19 @@ export default function WishlistCard({
         {format(new Date(createdAt), "d MMMM yyyy 'at.' HH:mm", {
           locale: enGB,
         })}
+      </div>
+
+      {/* Delete button */}
+      <div className="card-actions justify-end">
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete()
+          }}
+          className="btn btn-ghost text-error"
+        >
+          <TrashIcon className="size-4" />
+        </button>
       </div>
     </div>
   )

@@ -58,6 +58,31 @@ export default function WishlistPage() {
     (wishlist) => wishlist.id === selectedWishlist
   )
 
+  const deleteWishlist = async (wishlistId: string) => {
+    try {
+      const response = await fetch("/api/wishlist", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ wishlistId }),
+      })
+
+      if (response.ok) {
+        // Update the list by removing the deleted wishlist
+        setWishlists((prev) => prev.filter((w) => w.id !== wishlistId))
+        if (selectedWishlist === wishlistId) {
+          setSelectedWishlist(null)
+        }
+      } else {
+        const data = await response.json()
+        setError(data.error || "Kunde inte ta bort önskelistan")
+      }
+    } catch {
+      setError("Ett fel uppstod när önskelistan skulle tas bort")
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {error && (
@@ -101,6 +126,7 @@ export default function WishlistPage() {
                     createdAt={wishlist.createdAt}
                     itemCount={wishlist.items.length}
                     onClick={() => handleWishlistClick(wishlist.id)}
+                    onDelete={() => deleteWishlist(wishlist.id)}
                     isSelected={selectedWishlist === wishlist.id}
                   />
                 ))
