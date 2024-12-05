@@ -1,20 +1,31 @@
 "use client"
 
-import { useActionState } from "react"
+import { useFormState } from "react-dom"
 
 import { register } from "./actions"
 
+type RegisterState = {
+  errors?: {
+    email?: string[]
+    password?: string[]
+    name?: string[]
+    _form?: string[]
+  }
+}
+
+const initialState: RegisterState = {
+  errors: {
+    email: [],
+    password: [],
+    name: [],
+  },
+}
+
 export function RegisterForm() {
-  const [state, registerAction] = useActionState(register, {
-    errors: {
-      email: [],
-      password: [],
-      name: [],
-    },
-  })
+  const [state, formAction] = useFormState(register, initialState)
 
   return (
-    <form action={registerAction} className="flex max-w-[300px] flex-col gap-2">
+    <form action={formAction} className="flex max-w-[300px] flex-col gap-2">
       {state?.errors?._form && (
         <p className="text-red-500">{state.errors._form}</p>
       )}
