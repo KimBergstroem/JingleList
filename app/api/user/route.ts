@@ -71,7 +71,7 @@ export async function PUT(request: Request) {
       email: validatedFields.data.email,
     }
 
-    // Lägg bara till image om det finns och inte är null
+    // Only add image if it exists and is not null
     if (validatedFields.data.image !== null) {
       Object.assign(updateData, { image: validatedFields.data.image })
     }
