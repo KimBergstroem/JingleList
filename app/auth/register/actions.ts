@@ -6,7 +6,6 @@ import bcrypt from "bcrypt"
 import { z } from "zod"
 
 import { prisma } from "@/lib/db"
-import { validateCsrfToken } from "@/app/lib/csrf"
 import { rateLimit } from "@/app/lib/rate-limit"
 
 const registerSchema = z.object({
@@ -16,7 +15,6 @@ const registerSchema = z.object({
     .min(8, { message: "Password must be at least 8 characters" })
     .trim(),
   name: z.string().trim().optional(),
-  csrf_token: z.string(),
 })
 
 type RegisterState = {
@@ -52,14 +50,17 @@ export async function register(
     }
   }
 
-  const { email, password, name, csrf_token } = result.data
+  const { email, password, name } = result.data
 
-  // Validate CSRF token
-  const isValidCsrfToken = await validateCsrfToken(csrf_token)
-  if (!isValidCsrfToken) {
+  // Check if user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  })
+
+  if (existingUser) {
     return {
       errors: {
-        _form: ["Invalid form submission"],
+        email: ["Email already in use"],
       },
     }
   }
@@ -68,29 +69,13 @@ export async function register(
   const hashedPassword = await bcrypt.hash(password, 10)
 
   // Create user in the database
-  try {
-    await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-      },
-    })
-
-    redirect("/auth/login")
-  } catch {
-    return {
-      errors: {
-        email: ["Email already in use"],
-      },
-    }
-  }
-
-  return {
-    errors: {
-      email: [],
-      password: [],
-      name: [],
+  await prisma.user.create({
+    data: {
+      email,
+      password: hashedPassword,
+      name,
     },
-  }
+  })
+
+  redirect("/auth/login")
 }

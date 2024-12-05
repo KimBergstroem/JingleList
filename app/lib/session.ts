@@ -13,6 +13,7 @@ export async function createSession(userId: string) {
   ;(await cookies()).set("session", session, {
     httpOnly: true, // Cant be accessed by JavaScript
     secure: true, // Only send the cookie over HTTPS
+    sameSite: "lax", // Protect against CSRF
     expires: expiresAt,
   })
 }

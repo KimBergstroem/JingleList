@@ -1,40 +1,20 @@
-type RateLimitStore = {
-  [key: string]: {
-    count: number
-    resetAt: number
-  }
-}
+const rateLimitMap = new Map<string, { count: number; timestamp: number }>()
 
-const store: RateLimitStore = {} // Initialize an empty object to store rate limit data in memory
-
-export function rateLimit(
-  key: string,
-  limit: number,
-  windowMs: number = 60000
-) {
+export function rateLimit(key: string, maxAttempts: number): boolean {
   const now = Date.now()
-  const record = store[key]
+  const windowMs = 60 * 1000 // 1 minute window
 
-  if (!record) {
-    store[key] = {
-      count: 1,
-      resetAt: now + windowMs,
-    }
+  const entry = rateLimitMap.get(key)
+
+  if (!entry || now - entry.timestamp > windowMs) {
+    rateLimitMap.set(key, { count: 1, timestamp: now })
     return true
   }
 
-  if (now > record.resetAt) {
-    store[key] = {
-      count: 1,
-      resetAt: now + windowMs,
-    }
-    return true
-  }
-
-  if (record.count >= limit) {
+  if (entry.count >= maxAttempts) {
     return false
   }
 
-  record.count++
+  entry.count++
   return true
 }

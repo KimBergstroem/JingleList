@@ -1,0 +1,59 @@
+.heroContainer {
+  @apply min-h-[70vh] bg-base-200;
+}
+
+.heroContent {
+  @apply flex-col gap-12 lg:flex-row-reverse;
+}
+
+.imageContainer {
+  @apply relative h-[300px] w-full max-w-sm lg:h-auto lg:w-1/2;
+}
+
+.imageWrapper {
+  @apply aspect-square h-full w-full overflow-hidden rounded-lg bg-primary/10 shadow-2xl;
+}
+
+.freeLabel {
+  @apply absolute -bottom-4 -right-4 flex size-24 items-center justify-center rounded-full bg-primary text-primary-content;
+}
+
+.heroText {
+  @apply lg:w-1/2;
+}
+
+.heroTitle {
+  @apply text-5xl font-bold;
+}
+
+.heroDescription {
+  @apply py-8 text-lg;
+}
+
+.featureSection {
+  @apply container mx-auto px-4;
+}
+
+.featureTitle {
+  @apply mb-12 text-center text-4xl font-bold;
+}
+
+.featureGrid {
+  @apply grid gap-12 px-4 md:grid-cols-3;
+}
+
+.featureCard {
+  @apply card bg-base-100 shadow-xl;
+}
+
+.featureIcon {
+  @apply mb-6 flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary;
+}
+
+.statsContainer {
+  @apply stats stats-vertical mb-24 w-full shadow lg:stats-horizontal;
+}
+
+.statFigure {
+  @apply stat-figure text-primary;
+}
