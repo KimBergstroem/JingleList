@@ -20,7 +20,6 @@ type NavLink = {
 
 const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Homepage" },
-  { href: "/dashboard", label: "Dashboard", requiresAuth: true },
   { href: "/about", label: "About" },
 ]
 

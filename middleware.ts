@@ -12,9 +12,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
-    (request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/profile") ||
-      request.nextUrl.pathname.startsWith("/whishlist")) &&
+    (request.nextUrl.pathname.startsWith("/profile") ||
+      request.nextUrl.pathname.startsWith("/wishlist") ||
+      request.nextUrl.pathname.startsWith("/users")) &&
     !session?.userId
   ) {
     return NextResponse.redirect(new URL("/auth/login", request.url))
@@ -34,10 +34,10 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/dashboard/:path*",
     "/profile/:path*",
+    "/users/:path*",
     "/auth/login",
     "/auth/register",
-    "/whishlist",
+    "/wishlist",
   ],
 }
