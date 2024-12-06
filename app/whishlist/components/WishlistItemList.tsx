@@ -1,3 +1,5 @@
+import TrashIcon from "@/components/ui/icons/TrashIcon"
+
 type WishlistItem = {
   id: string
   title: string
@@ -9,9 +11,13 @@ type WishlistItem = {
 
 type WishlistItemListProps = {
   items: WishlistItem[]
+  onDeleteItem?: (itemId: string) => void
 }
 
-export default function WishlistItemList({ items }: WishlistItemListProps) {
+export default function WishlistItemList({
+  items,
+  onDeleteItem,
+}: WishlistItemListProps) {
   return (
     <div className="space-y-4">
       {items.length === 0 ? (
@@ -29,17 +35,27 @@ export default function WishlistItemList({ items }: WishlistItemListProps) {
                   Price: {item.price} kr
                 </p>
               </div>
-              <span
-                className={`rounded-full px-2 py-1 text-xs ${
-                  item.priority === "HIGH"
-                    ? "bg-red-100 text-red-800"
-                    : item.priority === "MEDIUM"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-green-100 text-green-800"
-                }`}
-              >
-                {item.priority}
-              </span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-2 py-1 text-xs ${
+                    item.priority === "HIGH"
+                      ? "bg-red-100 text-red-800"
+                      : item.priority === "MEDIUM"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-green-100 text-green-800"
+                  }`}
+                >
+                  {item.priority}
+                </span>
+                {onDeleteItem && (
+                  <button
+                    onClick={() => onDeleteItem(item.id)}
+                    className="btn btn-ghost btn-sm text-error hover:bg-error/10"
+                  >
+                    <TrashIcon className="size-4" />
+                  </button>
+                )}
+              </div>
             </div>
             {item.url && (
               <a

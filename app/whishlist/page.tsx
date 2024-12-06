@@ -54,6 +54,10 @@ export default function WishlistPage() {
     setShowAddWishlist(false)
   }
 
+  const handleItemAdded = () => {
+    fetchWishlists()
+  }
+
   const selectedWishlistData = wishlists.find(
     (wishlist) => wishlist.id === selectedWishlist
   )
@@ -80,6 +84,23 @@ export default function WishlistPage() {
       }
     } catch {
       setError("Ett fel uppstod när önskelistan skulle tas bort")
+    }
+  }
+
+  const deleteItem = async (itemId: string) => {
+    try {
+      const response = await fetch(`/api/wishlist/items?id=${itemId}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        fetchWishlists()
+      } else {
+        const data = await response.json()
+        setError(data.error || "Could not delete the item")
+      }
+    } catch {
+      setError("An error occurred while deleting the item")
     }
   }
 
@@ -147,10 +168,16 @@ export default function WishlistPage() {
               </div>
 
               {/* List of items */}
-              <WishlistItemList items={selectedWishlistData.items} />
+              <WishlistItemList
+                items={selectedWishlistData.items}
+                onDeleteItem={deleteItem}
+              />
 
               {/* AddItem form */}
-              <AddItem wishlistId={selectedWishlistData.id} />
+              <AddItem
+                wishlistId={selectedWishlistData.id}
+                onItemAdded={handleItemAdded}
+              />
             </div>
           )}
         </div>

@@ -4,7 +4,6 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { decrypt } from "@/app/lib/session"
 
-// Lägg till nytt item i önskelista
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies()
@@ -20,12 +19,12 @@ export async function POST(request: Request) {
 
     if (!wishlistId) {
       return NextResponse.json(
-        { error: "Önskelista måste anges" },
+        { error: "Wishlist must be specified" },
         { status: 400 }
       )
     }
 
-    // Verifiera att önskelistan tillhör användaren
+    // Verify that the wishlist belongs to the user
     const wishlist = await prisma.wishlist.findFirst({
       where: {
         id: wishlistId,
@@ -34,10 +33,7 @@ export async function POST(request: Request) {
     })
 
     if (!wishlist) {
-      return NextResponse.json(
-        { error: "Önskelistan hittades inte" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Wishlist not found" }, { status: 404 })
     }
 
     const item = await prisma.wishlistItem.create({
@@ -55,7 +51,55 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating wishlist item:", error)
     return NextResponse.json(
-      { error: "Kunde inte lägga till objektet" },
+      { error: "Could not add the item" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const itemId = searchParams.get("id")
+
+  if (!itemId) {
+    return NextResponse.json({ error: "Item ID is required" }, { status: 400 })
+  }
+
+  try {
+    const cookieStore = await cookies()
+    const sessionToken = cookieStore.get("session")?.value
+    const session = await decrypt(sessionToken)
+
+    if (!session?.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Verify that the item exists and belongs to the user's wishlist
+    const item = await prisma.wishlistItem.findFirst({
+      where: {
+        id: itemId,
+        wishlist: {
+          userId: String(session.userId),
+        },
+      },
+    })
+
+    if (!item) {
+      return NextResponse.json({ error: "Item not found" }, { status: 404 })
+    }
+
+    // Delete the item
+    await prisma.wishlistItem.delete({
+      where: {
+        id: itemId,
+      },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Error deleting wishlist item:", error)
+    return NextResponse.json(
+      { error: "Could not delete the item" },
       { status: 500 }
     )
   }

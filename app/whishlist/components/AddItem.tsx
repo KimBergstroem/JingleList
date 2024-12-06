@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 type FormData = {
   title: string
@@ -20,11 +20,22 @@ const initialFormData: FormData = {
 
 interface AddItemProps {
   wishlistId: string
+  onItemAdded?: () => void
 }
 
-export default function AddItem({ wishlistId }: AddItemProps) {
+export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [error, setError] = useState<string>("")
+  const [success, setSuccess] = useState<string>("")
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess("")
+      }, 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [success])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,7 +56,8 @@ export default function AddItem({ wishlistId }: AddItemProps) {
 
       if (response.ok) {
         setFormData(initialFormData)
-        // Here you can add a success message or redirect
+        setSuccess("Item added successfully!")
+        onItemAdded?.()
       } else {
         const data = await response.json()
         setError(data.error || "Could not add the item")
@@ -74,6 +86,12 @@ export default function AddItem({ wishlistId }: AddItemProps) {
       {error && (
         <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="mb-4 rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700">
+          {success}
         </div>
       )}
 
