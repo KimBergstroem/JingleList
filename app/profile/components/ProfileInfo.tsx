@@ -5,6 +5,8 @@ import Image from "next/image"
 
 import { ProfileIcon } from "@/components/ui/icons"
 
+import { ShoppingList } from "./ShoppingList"
+
 type UserData = {
   name: string | null
   email: string
@@ -108,6 +110,10 @@ export function ProfileInfo() {
           />
         </div>
       </div>
+
+      {/* Shopping List */}
+      <div className="divider" />
+      <ShoppingList />
     </div>
   )
 }
