@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+
+import { CheckIcon } from "@/components/ui/icons"
 
 type CardProps = {
   userId: string
@@ -11,6 +14,8 @@ type CardProps = {
     title: string
     description: string
     price: number
+    purchased: boolean
+    purchasedBy: string | null
   }[]
 }
 
@@ -30,7 +35,48 @@ export default function Card({
   occasion,
   wishlistItems,
 }: CardProps) {
+  const [purchasedItems, setPurchasedItems] = useState<Set<string>>(
+    new Set(
+      wishlistItems.filter((item) => item.purchased).map((item) => item.id)
+    )
+  )
   const bgColor = occasionColors[occasion] || occasionColors.Other
+
+  useEffect(() => {
+    async function fetchPurchasedItems() {
+      try {
+        const response = await fetch(`/api/wishlist/items/${userId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setPurchasedItems(new Set(data.purchasedItemIds))
+        }
+      } catch (error) {
+        console.error("Error fetching purchased items:", error)
+      }
+    }
+
+    fetchPurchasedItems()
+  }, [userId])
+
+  const handlePurchase = async (itemId: string) => {
+    try {
+      const response = await fetch("/api/wishlist/items/purchase", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ itemId }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update purchase status")
+      }
+
+      setPurchasedItems((prev) => new Set([...prev, itemId]))
+    } catch (error) {
+      console.error("Error updating purchase status:", error)
+    }
+  }
 
   return (
     <Link
@@ -40,7 +86,6 @@ export default function Card({
       <div
         className={`card relative ${bgColor} transition-colors duration-200`}
       >
-        {/* Profile Image */}
         <div className="absolute -left-2 -top-2 z-10">
           <div className="size-10 overflow-hidden rounded-full ring-2 ring-base-100">
             <Image
@@ -54,12 +99,10 @@ export default function Card({
         </div>
 
         <div className="card-body pt-8">
-          {/* Occasion Tag */}
           <div className="mb-4 text-center text-sm font-medium opacity-75">
             {occasion} List
           </div>
 
-          {/* Items List */}
           <ul className="space-y-2">
             {wishlistItems.map((item) => (
               <li
@@ -68,6 +111,20 @@ export default function Card({
               >
                 <span className="font-medium">{item.title}</span>
                 <span className="text-primary">{item.price} kr</span>
+                {purchasedItems.has(item.id) ? (
+                  <CheckIcon className="size-5 text-success" />
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      handlePurchase(item.id)
+                    }}
+                    className="btn btn-success btn-xs"
+                  >
+                    Buy
+                  </button>
+                )}
               </li>
             ))}
           </ul>

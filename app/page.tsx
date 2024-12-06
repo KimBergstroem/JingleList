@@ -1,6 +1,7 @@
 "use client"
 
 import CountDown from "@/components/ui/CountDown"
+import { CheckIcon } from "@/components/ui/icons"
 import HomePage from "@/app/homepage/page"
 
 export default function Home() {
@@ -24,6 +25,19 @@ export default function Home() {
       </div>
 
       <div className="mb-4 mt-10">
+        <div className="mb-8 rounded-lg bg-base-200 p-4">
+          <h3 className="mb-2 text-lg font-semibold">Status</h3>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded bg-base-100 px-3 py-2">
+              <CheckIcon className="size-5 text-success" />
+              <span>= Item has been purchased</span>
+            </div>
+            <span className="text-sm text-base-content/70">
+              (When you see this icon, someone has bought the item)
+            </span>
+          </div>
+        </div>
+
         <h2 className="mb-10 text-2xl font-semibold">
           Different wish lists from users
         </h2>

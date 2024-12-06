@@ -23,6 +23,8 @@ type WishlistItem = {
   price: number
   url: string
   priority: "HIGH" | "MEDIUM" | "LOW"
+  purchased: boolean
+  purchasedBy: string | null
 }
 
 export default function WishlistPage() {
@@ -171,6 +173,7 @@ export default function WishlistPage() {
               <WishlistItemList
                 items={selectedWishlistData.items}
                 onDeleteItem={deleteItem}
+                isOwner={true}
               />
 
               {/* AddItem form */}

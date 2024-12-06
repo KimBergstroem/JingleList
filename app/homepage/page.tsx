@@ -17,6 +17,8 @@ type Wishlist = {
     title: string
     description: string
     price: number
+    purchased: boolean
+    purchasedBy: string | null
   }[]
 }
 
