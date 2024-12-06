@@ -37,6 +37,8 @@ model WishlistItem {
   url         String?
   priority    String?
   wishlistId  String
+  purchased   Boolean  @default(false)
+  purchasedBy String?  // ID of the user who purchased the item
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   wishlist    Wishlist @relation(fields: [wishlistId], references: [id])
