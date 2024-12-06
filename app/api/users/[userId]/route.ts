@@ -6,12 +6,12 @@ type Params = { userId: string }
 
 export async function GET(
   _req: Request,
-  context: { params: Promise<Params> } // Ändra typen här
+  context: { params: Promise<Params> }
 ): Promise<Response> {
   try {
-    const resolvedParams = await context.params // Vänta på params
+    const resolvedParams = await context.params
     const user = await prisma.user.findUnique({
-      where: { id: resolvedParams.userId }, // Använd resolvedParams
+      where: { id: resolvedParams.userId },
       select: {
         name: true,
         image: true,
@@ -37,6 +37,8 @@ export async function GET(
                 price: true,
                 url: true,
                 priority: true,
+                purchased: true,
+                purchasedBy: true,
                 createdAt: true,
                 updatedAt: true,
               },
