@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 import { ProfileIcon } from "@/components/ui/icons"
 
@@ -14,26 +13,31 @@ type UserData = {
 }
 
 export default function UserDropdown({ userId }: { userId: string }) {
-  const router = useRouter()
   const [userData, setUserData] = useState<UserData | null>(null)
 
-  useEffect(() => {
-    async function loadUserData() {
-      try {
-        const response = await fetch("/api/user", {
-          credentials: "include",
-        })
-        if (!response.ok) {
-          throw new Error("Could not fetch user data")
-        }
-        const data = await response.json()
-        setUserData(data.user)
-      } catch (error) {
-        console.error("Error loading user data:", error)
+  async function loadUserData() {
+    try {
+      const response = await fetch("/api/user", {
+        credentials: "include",
+      })
+      if (!response.ok) {
+        throw new Error("Could not fetch user data")
       }
+      const data = await response.json()
+      setUserData(data.user)
+    } catch (error) {
+      console.error("Error loading user data:", error)
     }
+  }
+
+  useEffect(() => {
     loadUserData()
-  }, [userId, router])
+
+    // Uppdatera var 30:e sekund
+    const interval = setInterval(loadUserData, 30000)
+
+    return () => clearInterval(interval)
+  }, [userId])
 
   return (
     <div className="dropdown dropdown-end">
@@ -42,14 +46,14 @@ export default function UserDropdown({ userId }: { userId: string }) {
         role="button"
         className="avatar btn btn-circle btn-ghost"
       >
-        <div className="w-10 rounded-full">
+        <div className="size-10 overflow-hidden rounded-full">
           {userData?.image ? (
             <Image
               src={userData.image}
               alt="Profile picture"
               width={40}
               height={40}
-              className="rounded-full"
+              className="size-full object-cover"
             />
           ) : (
             <div className="flex size-full items-center justify-center bg-neutral text-neutral-content">
