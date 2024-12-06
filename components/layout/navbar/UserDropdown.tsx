@@ -17,7 +17,7 @@ export default function UserDropdown({ userId }: { userId: string }) {
 
   async function loadUserData() {
     try {
-      const response = await fetch("/api/user", {
+      const response = await fetch("/api/users/me", {
         credentials: "include",
       })
       if (!response.ok) {

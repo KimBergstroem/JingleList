@@ -21,7 +21,7 @@ export function ProfileInfo() {
   useEffect(() => {
     async function loadUserData() {
       try {
-        const response = await fetch("/api/user", {
+        const response = await fetch("/api/users/me", {
           credentials: "include",
         })
 
