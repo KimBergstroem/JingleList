@@ -2,6 +2,11 @@
 
 import { useState } from "react"
 
+import {
+  validateWishlistForm,
+  type WishlistFormData,
+} from "@/lib/utils/form-validation"
+
 const occasionTypes = [
   "Christmas",
   "Birthday",
@@ -9,13 +14,7 @@ const occasionTypes = [
   "Mother's Day",
   "Valentine's Day",
   "Other",
-]
-
-type WishlistFormData = {
-  title: string
-  description: string
-  occasion: string
-}
+] as const
 
 const initialFormData: WishlistFormData = {
   title: "",
@@ -23,17 +22,38 @@ const initialFormData: WishlistFormData = {
   occasion: occasionTypes[0],
 }
 
+type FormErrors = {
+  [key: string]: string
+}
+
 export default function AddWishlist() {
   const [formData, setFormData] = useState<WishlistFormData>(initialFormData)
   const [error, setError] = useState<string>("")
+  const [fieldErrors, setFieldErrors] = useState<FormErrors>({})
   const [success, setSuccess] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setFieldErrors({})
     setSuccess(false)
     setIsSubmitting(true)
+
+    // Validate the form
+    const validationResult = validateWishlistForm(formData)
+    if (!validationResult.success) {
+      const errors = validationResult.errors.reduce(
+        (acc, error) => ({
+          ...acc,
+          [error.field]: error.message,
+        }),
+        {} as FormErrors
+      )
+      setFieldErrors(errors)
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       const response = await fetch("/api/wishlist", {
@@ -41,13 +61,12 @@ export default function AddWishlist() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(validationResult.data),
       })
 
       if (response.ok) {
         setSuccess(true)
         setFormData(initialFormData)
-
         // Wait a bit so the user can see the success message
         await new Promise((resolve) => setTimeout(resolve, 1500))
         window.location.href = "/whishlist"
@@ -72,6 +91,14 @@ export default function AddWishlist() {
       ...prev,
       [name]: value,
     }))
+    // Clear the error for this field when the user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[name]
+        return newErrors
+      })
+    }
   }
 
   return (
@@ -103,7 +130,9 @@ export default function AddWishlist() {
             name="occasion"
             value={formData.occasion}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              fieldErrors.occasion ? "border-red-500" : ""
+            }`}
             disabled={isSubmitting || success}
           >
             {occasionTypes.map((type) => (
@@ -112,6 +141,9 @@ export default function AddWishlist() {
               </option>
             ))}
           </select>
+          {fieldErrors.occasion && (
+            <p className="mt-1 text-sm text-red-600">{fieldErrors.occasion}</p>
+          )}
         </div>
 
         <div>
@@ -127,10 +159,16 @@ export default function AddWishlist() {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            maxLength={25}
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              fieldErrors.title ? "border-red-500" : ""
+            }`}
             required
             disabled={isSubmitting || success}
           />
+          {fieldErrors.title && (
+            <p className="mt-1 text-sm text-red-600">{fieldErrors.title}</p>
+          )}
         </div>
 
         <div>
@@ -143,12 +181,20 @@ export default function AddWishlist() {
           <textarea
             id="description"
             name="description"
-            value={formData.description}
+            value={formData.description || ""}
             onChange={handleChange}
+            maxLength={75}
             rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              fieldErrors.description ? "border-red-500" : ""
+            }`}
             disabled={isSubmitting || success}
           />
+          {fieldErrors.description && (
+            <p className="mt-1 text-sm text-red-600">
+              {fieldErrors.description}
+            </p>
+          )}
         </div>
 
         <button

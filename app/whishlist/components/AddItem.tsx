@@ -2,12 +2,18 @@
 
 import { useEffect, useState } from "react"
 
+import { validateWishlistItemForm } from "@/lib/utils/form-validation"
+
 type FormData = {
   title: string
   description: string
   price: string
   url: string
   priority: "LOW" | "MEDIUM" | "HIGH"
+}
+
+type FormErrors = {
+  [key: string]: string
 }
 
 const initialFormData: FormData = {
@@ -26,7 +32,9 @@ interface AddItemProps {
 export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [error, setError] = useState<string>("")
+  const [fieldErrors, setFieldErrors] = useState<FormErrors>({})
   const [success, setSuccess] = useState<string>("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (success) {
@@ -40,6 +48,31 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setFieldErrors({})
+    setIsSubmitting(true)
+
+    // Convert formData to the correct format for validation
+    const dataToValidate: unknown = {
+      ...formData,
+      price: Number(formData.price),
+      description: formData.description || null,
+      url: formData.url || null,
+    }
+
+    // Validate data
+    const validationResult = validateWishlistItemForm(dataToValidate)
+    if (!validationResult.success) {
+      const errors = validationResult.errors.reduce(
+        (acc, error) => ({
+          ...acc,
+          [error.field]: error.message,
+        }),
+        {} as FormErrors
+      )
+      setFieldErrors(errors)
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       const response = await fetch("/api/wishlist/items", {
@@ -48,8 +81,7 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData,
-          price: Number(formData.price),
+          ...validationResult.data,
           wishlistId,
         }),
       })
@@ -64,6 +96,8 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
       }
     } catch {
       setError("An error occurred while adding the item")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -77,6 +111,14 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
       ...prev,
       [name]: value,
     }))
+    // Clear the error for this field when the user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[name]
+        return newErrors
+      })
+    }
   }
 
   return (
@@ -109,9 +151,16 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            maxLength={25}
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              fieldErrors.title ? "border-red-500" : ""
+            }`}
             required
+            disabled={isSubmitting}
           />
+          {fieldErrors.title && (
+            <p className="mt-1 text-sm text-red-600">{fieldErrors.title}</p>
+          )}
         </div>
 
         <div>
@@ -126,9 +175,18 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
             name="description"
             value={formData.description}
             onChange={handleChange}
+            maxLength={150}
             rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              fieldErrors.description ? "border-red-500" : ""
+            }`}
+            disabled={isSubmitting}
           />
+          {fieldErrors.description && (
+            <p className="mt-1 text-sm text-red-600">
+              {fieldErrors.description}
+            </p>
+          )}
         </div>
 
         <div>
@@ -144,9 +202,17 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
             name="price"
             value={formData.price}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            min={0}
+            max={10000}
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              fieldErrors.price ? "border-red-500" : ""
+            }`}
             required
+            disabled={isSubmitting}
           />
+          {fieldErrors.price && (
+            <p className="mt-1 text-sm text-red-600">{fieldErrors.price}</p>
+          )}
         </div>
 
         <div>
@@ -162,8 +228,15 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
             name="url"
             value={formData.url}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            maxLength={500}
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              fieldErrors.url ? "border-red-500" : ""
+            }`}
+            disabled={isSubmitting}
           />
+          {fieldErrors.url && (
+            <p className="mt-1 text-sm text-red-600">{fieldErrors.url}</p>
+          )}
         </div>
 
         <div>
@@ -178,16 +251,26 @@ export default function AddItem({ wishlistId, onItemAdded }: AddItemProps) {
             name="priority"
             value={formData.priority}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              fieldErrors.priority ? "border-red-500" : ""
+            }`}
+            disabled={isSubmitting}
           >
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
             <option value="HIGH">High</option>
           </select>
+          {fieldErrors.priority && (
+            <p className="mt-1 text-sm text-red-600">{fieldErrors.priority}</p>
+          )}
         </div>
 
-        <button type="submit" className="btn btn-primary w-full">
-          Add item
+        <button
+          type="submit"
+          className="btn btn-primary w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Adding item..." : "Add item"}
         </button>
       </form>
     </div>
