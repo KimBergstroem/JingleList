@@ -66,7 +66,7 @@ export async function login(
 
   await createSession(user.id)
 
-  redirect("/dashboard")
+  redirect("/")
 
   return {
     errors: {
