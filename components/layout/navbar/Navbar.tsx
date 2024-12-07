@@ -15,12 +15,13 @@ type Session = {
 type NavLink = {
   href: string
   label: string
+  labelWhenLoggedOut?: string
   requiresAuth?: boolean
   prefetch: boolean
 }
 
 const NAV_LINKS: NavLink[] = [
-  { href: "/", label: "Browse", prefetch: true },
+  { href: "/", label: "Browse", labelWhenLoggedOut: "Home", prefetch: true },
   { href: "/about", label: "About", prefetch: false },
 ]
 
@@ -48,7 +49,9 @@ export default async function Navbar() {
               !link.requiresAuth || session?.userId ? (
                 <li key={link.href}>
                   <Link href={link.href} prefetch={link.prefetch}>
-                    {link.label}
+                    {session?.userId
+                      ? link.label
+                      : link.labelWhenLoggedOut || link.label}
                   </Link>
                 </li>
               ) : null
