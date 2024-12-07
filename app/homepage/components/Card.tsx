@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -42,22 +42,6 @@ export default function Card({
   )
   const bgColor = occasionColors[occasion] || occasionColors.Other
 
-  useEffect(() => {
-    async function fetchPurchasedItems() {
-      try {
-        const response = await fetch(`/api/wishlist/items/${userId}`)
-        if (response.ok) {
-          const data = await response.json()
-          setPurchasedItems(new Set(data.purchasedItemIds))
-        }
-      } catch (error) {
-        console.error("Error fetching purchased items:", error)
-      }
-    }
-
-    fetchPurchasedItems()
-  }, [userId])
-
   const handlePurchase = async (itemId: string) => {
     try {
       const response = await fetch("/api/wishlist/items/purchase", {
@@ -90,7 +74,7 @@ export default function Card({
           <div className="size-10 overflow-hidden rounded-full ring-2 ring-base-100">
             <Image
               src={profileImage}
-              alt={`${userName}&apos;s profile`}
+              alt={`${userName}'s profile`}
               width={40}
               height={40}
               className="size-full object-cover"
