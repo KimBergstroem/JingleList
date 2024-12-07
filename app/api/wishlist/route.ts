@@ -81,33 +81,48 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { wishlistId } = await request.json()
+    const { searchParams } = new URL(request.url)
+    const wishlistId = searchParams.get("id")
 
     if (!wishlistId) {
       return NextResponse.json(
-        { error: "Wishlist ID must be provided" },
+        { error: "Wishlist ID is required" },
         { status: 400 }
       )
     }
 
-    // Verify that the wishlist belongs to the user
-    const wishlist = await prisma.wishlist.findFirst({
-      where: {
-        id: wishlistId,
-        userId: String(session.userId),
-      },
+    // Kontrollera att wishlisten tillhör användaren
+    const wishlist = await prisma.wishlist.findUnique({
+      where: { id: wishlistId },
+      select: { userId: true },
     })
 
     if (!wishlist) {
       return NextResponse.json({ error: "Wishlist not found" }, { status: 404 })
     }
 
-    // Remove the wishlist and all its items (cascade delete is configured in schema)
-    await prisma.wishlist.delete({
-      where: {
-        id: wishlistId,
-      },
-    })
+    if (wishlist.userId !== session.userId) {
+      return NextResponse.json(
+        { error: "Not authorized to delete this wishlist" },
+        { status: 403 }
+      )
+    }
+
+    // Använd en transaktion för att ta bort både items och wishlist
+    await prisma.$transaction([
+      // Först ta bort alla items
+      prisma.wishlistItem.deleteMany({
+        where: {
+          wishlistId: wishlistId,
+        },
+      }),
+      // Sedan ta bort wishlisten
+      prisma.wishlist.delete({
+        where: {
+          id: wishlistId,
+        },
+      }),
+    ])
 
     return NextResponse.json({ success: true })
   } catch (error) {
