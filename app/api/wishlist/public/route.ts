@@ -4,9 +4,11 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { decrypt } from "@/app/lib/session"
 
+export const revalidate = 60
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
-    // Get current logged in user
     const cookieStore = await cookies()
     const sessionToken = cookieStore.get("session")?.value
     const session = await decrypt(sessionToken)
@@ -18,14 +20,15 @@ export async function GET() {
         createdAt: "desc",
       },
       where: {
-        // Exclude current user's wishlists
         userId: currentUserId
           ? {
               not: String(currentUserId),
             }
           : undefined,
       },
-      include: {
+      select: {
+        id: true,
+        occasion: true,
         user: {
           select: {
             id: true,
@@ -34,17 +37,21 @@ export async function GET() {
           },
         },
         items: {
+          orderBy: {
+            createdAt: "desc",
+          },
           select: {
             id: true,
             title: true,
-            description: true,
             price: true,
-            url: true,
-            priority: true,
             purchased: true,
             purchasedBy: true,
-            createdAt: true,
-            updatedAt: true,
+            description: true,
+          },
+        },
+        _count: {
+          select: {
+            items: true,
           },
         },
       },
