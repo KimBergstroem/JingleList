@@ -124,7 +124,7 @@ export function ShoppingList() {
                     From {item.ownerName}&apos;s wishlist: {item.wishlistTitle}
                   </span>
                 </div>
-                <div className="mt-2 flex items-center gap-4">
+                <div className="mt-2 space-y-2">
                   {item.url && (
                     <a
                       href={item.url}
@@ -136,7 +136,7 @@ export function ShoppingList() {
                       <ExternalLinkIcon />
                     </a>
                   )}
-                  <span className="text-sm opacity-70">
+                  <span className="block text-sm opacity-70">
                     Purchased{" "}
                     {format(new Date(item.createdAt), "d MMMM yyyy", {
                       locale: enGB,

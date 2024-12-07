@@ -12,7 +12,7 @@ type CardProps = {
   wishlistItems: {
     id: string
     title: string
-    description: string
+    description?: string | null
     price: number
     purchased: boolean
     purchasedBy: string | null
@@ -107,12 +107,16 @@ export default function Card({
             {wishlistItems.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between rounded-lg bg-base-100/50 p-2"
+                className="flex items-center gap-2 rounded-lg bg-base-100/50 p-2 text-xs sm:text-sm"
               >
-                <span className="font-medium">{item.title}</span>
-                <span className="text-primary">{item.price} kr</span>
+                <span className="flex-1 truncate font-medium">
+                  {item.title}
+                </span>
+                <span className="whitespace-nowrap text-primary">
+                  {item.price} kr
+                </span>
                 {purchasedItems.has(item.id) ? (
-                  <CheckIcon className="size-5 text-success" />
+                  <CheckIcon className="size-4 shrink-0 text-success sm:size-5" />
                 ) : (
                   <button
                     onClick={(e) => {
@@ -120,7 +124,7 @@ export default function Card({
                       e.preventDefault()
                       handlePurchase(item.id)
                     }}
-                    className="btn btn-success btn-xs"
+                    className="btn btn-success btn-xs shrink-0"
                   >
                     Buy
                   </button>

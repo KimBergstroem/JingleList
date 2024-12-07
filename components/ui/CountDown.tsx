@@ -18,30 +18,30 @@ function CountDown() {
   }, [])
 
   return (
-    <div className="grid auto-cols-max grid-flow-col gap-5 text-center">
+    <div className="grid auto-cols-max grid-flow-col gap-2 sm:gap-3 md:gap-5">
       <div className="flex flex-col">
-        <span className="countdown font-mono text-5xl">
+        <span className="countdown font-mono text-3xl sm:text-4xl md:text-5xl">
           <span style={{ "--value": timeLeft.days } as CSSProperties}></span>
         </span>
-        days
+        <span className="text-xs sm:text-sm">days</span>
       </div>
       <div className="flex flex-col">
-        <span className="countdown font-mono text-5xl">
+        <span className="countdown font-mono text-3xl sm:text-4xl md:text-5xl">
           <span style={{ "--value": timeLeft.hours } as CSSProperties}></span>
         </span>
-        hours
+        <span className="text-xs sm:text-sm">hours</span>
       </div>
       <div className="flex flex-col">
-        <span className="countdown font-mono text-5xl">
+        <span className="countdown font-mono text-3xl sm:text-4xl md:text-5xl">
           <span style={{ "--value": timeLeft.minutes } as CSSProperties}></span>
         </span>
-        min
+        <span className="text-xs sm:text-sm">min</span>
       </div>
       <div className="flex flex-col">
-        <span className="countdown font-mono text-5xl">
+        <span className="countdown font-mono text-3xl sm:text-4xl md:text-5xl">
           <span style={{ "--value": timeLeft.seconds } as CSSProperties}></span>
         </span>
-        sec
+        <span className="text-xs sm:text-sm">sec</span>
       </div>
     </div>
   )

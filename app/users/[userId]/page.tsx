@@ -2,10 +2,12 @@
 
 import { use, useEffect, useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { format } from "date-fns"
 import { enGB } from "date-fns/locale"
 
 import {
+  ArrowLeftIcon,
   CheckIcon,
   ErrorIcon,
   ExternalLinkIcon,
@@ -75,7 +77,7 @@ export default function PublicUserProfile({
         setIsLoading(true)
         const [profileResponse, sessionResponse] = await Promise.all([
           fetch(`/api/users/${userId}`),
-          fetch("/api/user"),
+          fetch("/api/users/me"),
         ])
 
         const profileData = await profileResponse.json()
@@ -115,7 +117,6 @@ export default function PublicUserProfile({
         throw new Error("Failed to update purchase status")
       }
 
-      // Uppdatera UI:n
       setProfile((prevData) => {
         if (!prevData) return null
         return {
@@ -167,6 +168,12 @@ export default function PublicUserProfile({
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <Link href="/" className="btn btn-ghost gap-2">
+          <ArrowLeftIcon className="size-4" />
+          Tillbaka till Browse
+        </Link>
+      </div>
       {/* Profile Header */}
       <div className="mb-12 flex items-center gap-4">
         <div className="size-20 overflow-hidden rounded-full">
@@ -203,30 +210,32 @@ export default function PublicUserProfile({
                 )
               }
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-semibold">{wishlist.title}</h2>
-                  <div className="mt-2 flex items-center gap-4">
-                    <span className="badge badge-primary">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <h2 className="break-words text-xl font-semibold sm:text-2xl">
+                    {wishlist.title}
+                  </h2>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-4">
+                    <span className="badge badge-primary text-xs sm:text-sm">
                       {wishlist.occasion}
                     </span>
-                    <span className="text-sm opacity-70">
+                    <span className="text-xs opacity-70 sm:text-sm">
                       Created{" "}
-                      {format(new Date(wishlist.createdAt), "d MMMM yyyy", {
+                      {format(new Date(wishlist.createdAt), "d MMM yyyy", {
                         locale: enGB,
                       })}
                     </span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-lg font-medium">
+                  <span className="text-base font-medium sm:text-lg">
                     {wishlist.items.length}{" "}
                     {wishlist.items.length === 1 ? "item" : "items"}
                   </span>
                 </div>
               </div>
               {wishlist.description && (
-                <p className="mt-4 text-base-content/70">
+                <p className="mt-4 break-words text-sm text-base-content/70 sm:text-base">
                   {wishlist.description}
                 </p>
               )}
@@ -237,24 +246,26 @@ export default function PublicUserProfile({
               <div className="divide-y divide-base-300">
                 {wishlist.items.map((item) => {
                   return (
-                    <div key={item.id} className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-2">
-                          <h3 className="text-xl font-medium">{item.title}</h3>
+                    <div key={item.id} className="p-4 sm:p-6">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <h3 className="break-words text-base font-medium sm:text-xl">
+                            {item.title}
+                          </h3>
                           {item.description && (
-                            <p className="text-base-content/70">
+                            <p className="break-words text-sm text-base-content/70 sm:text-base">
                               {item.description}
                             </p>
                           )}
-                          <div className="flex flex-wrap items-center gap-4">
+                          <div className="flex flex-wrap items-center gap-2">
                             {item.price && (
-                              <span className="text-lg font-semibold text-primary">
+                              <span className="text-base font-semibold text-primary sm:text-lg">
                                 {item.price} kr
                               </span>
                             )}
                             {item.priority && (
                               <span
-                                className={`rounded-full px-3 py-1 text-sm ${
+                                className={`rounded-full px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm ${
                                   priorityColors[
                                     item.priority as keyof typeof priorityColors
                                   ]
@@ -263,58 +274,59 @@ export default function PublicUserProfile({
                                 {item.priority}
                               </span>
                             )}
-                            {!isOwner &&
-                              (item.purchased ? (
-                                <div
-                                  className={`btn btn-success btn-sm flex items-center gap-2 ${
-                                    item.purchasedBy === session?.user?.id
-                                      ? "hover:btn-error"
-                                      : "cursor-not-allowed opacity-80"
-                                  }`}
-                                  onClick={() => {
-                                    if (
-                                      item.purchasedBy === session?.user?.id
-                                    ) {
-                                      handlePurchase(item.id, true)
-                                    }
-                                  }}
-                                >
-                                  <CheckIcon className="size-5 text-black" />
-                                  <span className="text-sm text-black">
-                                    {item.purchasedBy === session?.user?.id
-                                      ? "Cancel Purchase"
-                                      : "Purchased"}
-                                  </span>
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={() => handlePurchase(item.id, false)}
-                                  className="btn btn-success btn-sm"
-                                >
-                                  Buy
-                                </button>
-                              ))}
                           </div>
-                          <div className="mt-4 flex items-center gap-4">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs sm:text-sm">
                             {item.url && (
                               <a
                                 href={item.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 text-accent hover:underline"
+                                className="inline-flex items-center gap-1 whitespace-nowrap text-accent hover:underline"
                               >
-                                Visit product link
+                                <span>Visit product link</span>
                                 <ExternalLinkIcon />
                               </a>
                             )}
-                            <span className="text-sm opacity-70">
+                            <span className="whitespace-nowrap opacity-70">
                               Added{" "}
-                              {format(new Date(item.createdAt), "d MMMM yyyy", {
+                              {format(new Date(item.createdAt), "d MMM yyyy", {
                                 locale: enGB,
                               })}
                             </span>
                           </div>
                         </div>
+                        {!isOwner && (
+                          <div className="flex shrink-0 justify-end">
+                            {item.purchased ? (
+                              <div
+                                className={`btn btn-success btn-sm flex items-center gap-2 ${
+                                  item.purchasedBy === session?.user?.id
+                                    ? "hover:btn-error"
+                                    : "cursor-not-allowed opacity-80"
+                                }`}
+                                onClick={() => {
+                                  if (item.purchasedBy === session?.user?.id) {
+                                    handlePurchase(item.id, true)
+                                  }
+                                }}
+                              >
+                                <CheckIcon className="size-4 text-black sm:size-5" />
+                                <span className="text-xs text-black sm:text-sm">
+                                  {item.purchasedBy === session?.user?.id
+                                    ? "Cancel Purchase"
+                                    : "Purchased"}
+                                </span>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handlePurchase(item.id, false)}
+                                className="btn btn-success btn-sm shrink-0"
+                              >
+                                Buy
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )

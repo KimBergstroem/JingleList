@@ -16,11 +16,12 @@ type NavLink = {
   href: string
   label: string
   requiresAuth?: boolean
+  prefetch: boolean
 }
 
 const NAV_LINKS: NavLink[] = [
-  { href: "/", label: "Homepage" },
-  { href: "/about", label: "About" },
+  { href: "/", label: "Browse", prefetch: true },
+  { href: "/about", label: "About", prefetch: false },
 ]
 
 async function getSession(): Promise<Session> {
@@ -42,17 +43,20 @@ export default async function Navbar() {
             tabIndex={0}
             className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
           >
+            <li className="menu-title font-bold">JingleList</li>
             {NAV_LINKS.map((link) =>
               !link.requiresAuth || session?.userId ? (
                 <li key={link.href}>
-                  <Link href={link.href}>{link.label}</Link>
+                  <Link href={link.href} prefetch={link.prefetch}>
+                    {link.label}
+                  </Link>
                 </li>
               ) : null
             )}
           </ul>
         </div>
       </div>
-      <div className="navbar-center">
+      <div className="navbar-center hidden sm:flex">
         <Link href="/" className="btn btn-ghost text-xl">
           JingleList
         </Link>

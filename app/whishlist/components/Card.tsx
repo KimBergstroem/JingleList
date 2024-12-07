@@ -79,11 +79,15 @@ export default function WishlistCard({
 
       {/* Title */}
       <div>
-        <h3 className="text-xl font-bold text-white">{title}</h3>
+        <h3 className="break-words text-xl font-bold text-white">{title}</h3>
       </div>
 
       {/* Description */}
-      {description && <p className="text-sm text-gray-300">{description}</p>}
+      {description && (
+        <p className="line-clamp-2 break-words text-sm text-gray-300">
+          {description}
+        </p>
+      )}
 
       {/* Created date */}
       <div className="text-xs text-gray-500">

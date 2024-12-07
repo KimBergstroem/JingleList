@@ -21,7 +21,7 @@ export function SettingsForm() {
   useEffect(() => {
     async function loadUserData() {
       try {
-        const response = await fetch("/api/user", {
+        const response = await fetch("/api/users/me", {
           credentials: "include",
         })
         if (!response.ok) {
@@ -76,24 +76,18 @@ export function SettingsForm() {
 
   async function submitForm(formData: FormData) {
     try {
-      if (!imagePreview) {
-        throw new Error("No image selected")
+      const formDataObj = {
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        image: imagePreview,
       }
 
-      const response = await fetch("/api/user", {
+      const response = await fetch("/api/users/me", {
         method: "PUT",
-        body: JSON.stringify({
-          name: formData.get("name"),
-          email: formData.get("email"),
-          image: imagePreview,
-          emailNotifications: formData.get("emailNotifications") === "on",
-          listUpdates: formData.get("listUpdates") === "on",
-          publicProfile: formData.get("publicProfile") === "on",
-          showEmail: formData.get("showEmail") === "on",
-        }),
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(formDataObj),
       })
 
       if (!response.ok) {
@@ -101,10 +95,7 @@ export function SettingsForm() {
         throw new Error(data.error || "Something went wrong")
       }
 
-      setUserData((prev) => (prev ? { ...prev, image: imagePreview } : null))
       setSuccess(true)
-
-      // Update all components that use the router
       router.refresh()
 
       // Show the success message for 2 seconds
@@ -132,7 +123,7 @@ export function SettingsForm() {
       {/* Profile Image */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Profile Picture</h2>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="avatar">
             <div className="w-24 rounded-full">
               <Image
@@ -144,13 +135,15 @@ export function SettingsForm() {
               />
             </div>
           </div>
-          <input
-            type="file"
-            name="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="file-input file-input-bordered w-full max-w-xs"
-          />
+          <div className="w-full sm:w-auto">
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="file-input file-input-bordered w-full sm:w-auto"
+            />
+          </div>
         </div>
       </section>
 

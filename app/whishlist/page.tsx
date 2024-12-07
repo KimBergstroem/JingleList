@@ -115,14 +115,14 @@ export default function WishlistPage() {
       )}
 
       {/* Main heading and Add new list button */}
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">My Wishlists</h1>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold sm:text-3xl">My Wishlists</h1>
         <button
           onClick={() => {
             setShowAddWishlist(!showAddWishlist)
             setSelectedWishlist(null)
           }}
-          className="btn btn-primary"
+          className="btn btn-primary btn-sm sm:btn-md"
         >
           {showAddWishlist ? "Cancel" : "Create new wishlist"}
         </button>

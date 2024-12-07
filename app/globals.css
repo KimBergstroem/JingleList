@@ -4,7 +4,7 @@
 
 @layer components {
   .container-wrapper {
-    @apply container mx-auto px-4;
+    @apply container mx-auto max-w-6xl px-4;
   }
 }
 

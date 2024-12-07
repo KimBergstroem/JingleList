@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import {
+  CheckIcon,
   LightningIcon,
   ListIcon,
   LockIcon,
@@ -47,6 +48,37 @@ export default function LandingPage() {
             <Link href="/auth/register" className="btn btn-primary">
               Get started
             </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Value Proposition Section */}
+      <div className="bg-base-200 py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="mb-6 text-3xl font-bold sm:text-4xl">
+              Make Gift-Giving <span className="text-primary">Magical</span>
+            </h2>
+            <div className="mx-auto max-w-2xl space-y-4">
+              <p className="text-base text-base-content/80 sm:text-lg">
+                Create, share, and manage your wishlists with loved ones. Keep
+                the surprise while making sure everyone gets what they wish for!
+              </p>
+              <div className="flex flex-wrap justify-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckIcon className="size-5 text-success" />
+                  <span>Easy sharing</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckIcon className="size-5 text-success" />
+                  <span>No duplicate gifts</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckIcon className="size-5 text-success" />
+                  <span>Keep surprises intact</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
