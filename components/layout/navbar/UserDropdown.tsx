@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 
 import { ProfileIcon } from "@/components/ui/icons"
 
@@ -14,38 +14,41 @@ type UserData = {
 
 export default function UserDropdown({ userId }: { userId: string }) {
   const [userData, setUserData] = useState<UserData | null>(null)
+  const detailsRef = useRef<HTMLDetailsElement>(null)
+  const router = useRouter()
+  const pathname = usePathname()
 
-  async function loadUserData() {
+  const loadUserData = useCallback(async () => {
+    if (!userId) {
+      setUserData(null)
+      return
+    }
+
     try {
       const response = await fetch("/api/users/me", {
         credentials: "include",
       })
       if (!response.ok) {
-        throw new Error("Could not fetch user data")
+        setUserData(null)
+        return
       }
       const data = await response.json()
       setUserData(data.user)
     } catch (error) {
-      console.error("Error loading user data:", error)
+      setUserData(null)
+      console.error("Could not load user data", error)
     }
-  }
+  }, [userId])
 
   useEffect(() => {
     loadUserData()
+  }, [userId, pathname, loadUserData])
 
-    // Uppdatera var 30:e sekund
-    const interval = setInterval(loadUserData, 30000)
-
-    return () => clearInterval(interval)
-  }, [userId])
+  if (!userId) return null
 
   return (
-    <div className="dropdown dropdown-end">
-      <div
-        tabIndex={0}
-        role="button"
-        className="avatar btn btn-circle btn-ghost"
-      >
+    <details ref={detailsRef} className="dropdown dropdown-end">
+      <summary role="button" className="avatar btn btn-circle btn-ghost">
         <div className="size-10 overflow-hidden rounded-full">
           {userData?.image ? (
             <Image
@@ -61,21 +64,25 @@ export default function UserDropdown({ userId }: { userId: string }) {
             </div>
           )}
         </div>
-      </div>
-      <ul
-        tabIndex={0}
-        className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
-      >
+      </summary>
+      <ul className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
         <li>
-          <Link href="/profile">Profile</Link>
+          <a onClick={() => handleNavigation("/profile")}>Profile</a>
         </li>
         <li>
-          <Link href="/whishlist">My Whishlist</Link>
+          <a onClick={() => handleNavigation("/whishlist")}>My Whishlist</a>
         </li>
         <li>
-          <Link href="/profile/settings">Settings</Link>
+          <a onClick={() => handleNavigation("/profile/settings")}>Settings</a>
         </li>
       </ul>
-    </div>
+    </details>
   )
+
+  function handleNavigation(href: string) {
+    if (detailsRef.current) {
+      detailsRef.current.open = false
+    }
+    router.push(href)
+  }
 }

@@ -1,16 +1,14 @@
-import { cookies } from "next/headers"
+"use client"
+
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 
 import { MenuIcon } from "@/components/ui/icons"
 import SearchBar from "@/components/ui/SearchBar"
 import ToggleTheme from "@/components/ui/ToggleTheme"
-import { decrypt } from "@/app/lib/session"
 
 import NavbarActions from "./NavbarActions"
-
-type Session = {
-  userId: string
-} | null
 
 type NavLink = {
   href: string
@@ -25,39 +23,60 @@ const NAV_LINKS: NavLink[] = [
   { href: "/about", label: "About", prefetch: false },
 ]
 
-async function getSession(): Promise<Session> {
-  const cookie = (await cookies()).get("session")?.value
-  return (await decrypt(cookie)) as Session
-}
+export default function Navbar() {
+  const [session, setSession] = useState<{ userId: string } | null>(null)
+  const detailsRef = useRef<HTMLDetailsElement>(null)
+  const router = useRouter()
+  const pathname = usePathname()
 
-export default async function Navbar() {
-  const session = await getSession()
+  async function getSession() {
+    try {
+      const response = await fetch("/api/users/me")
+      if (response.ok) {
+        const data = await response.json()
+        setSession({ userId: data.user.id })
+      } else {
+        setSession(null)
+      }
+    } catch (error) {
+      console.error("Failed to get session:", error)
+      setSession(null)
+    }
+  }
+
+  useEffect(() => {
+    getSession()
+  }, [pathname])
+
+  const handleNavigation = (href: string) => {
+    if (detailsRef.current) {
+      detailsRef.current.open = false
+    }
+    router.push(href)
+  }
 
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-circle btn-ghost">
+        <details ref={detailsRef} className="dropdown">
+          <summary role="button" className="btn btn-circle btn-ghost">
             <MenuIcon />
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
-          >
+          </summary>
+          <ul className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
             <li className="menu-title font-bold">JingleList</li>
             {NAV_LINKS.map((link) =>
               !link.requiresAuth || session?.userId ? (
                 <li key={link.href}>
-                  <Link href={link.href} prefetch={link.prefetch}>
+                  <a onClick={() => handleNavigation(link.href)}>
                     {session?.userId
                       ? link.label
                       : link.labelWhenLoggedOut || link.label}
-                  </Link>
+                  </a>
                 </li>
               ) : null
             )}
           </ul>
-        </div>
+        </details>
       </div>
       <div className="navbar-center hidden sm:flex">
         <Link href="/" className="btn btn-ghost text-xl">
