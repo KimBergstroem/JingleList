@@ -65,7 +65,6 @@ export async function login(
   }
 
   await createSession(user.id)
-
   redirect("/")
 
   return {

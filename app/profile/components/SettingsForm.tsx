@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 
 type UserData = {
   name: string | null
@@ -13,8 +14,6 @@ type UserData = {
 export function SettingsForm() {
   const router = useRouter()
   const [userData, setUserData] = useState<UserData | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
@@ -31,8 +30,9 @@ export function SettingsForm() {
         const data = await response.json()
         setUserData(data.user)
         setImagePreview(data.user.image)
+        toast.success("Settings loaded successfully")
       } catch (err) {
-        setError(
+        toast.error(
           err instanceof Error ? err.message : "Could not load user data"
         )
       } finally {
@@ -56,8 +56,6 @@ export function SettingsForm() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setError(null)
-    setSuccess(false)
 
     const formData = new FormData(event.currentTarget)
     const imageFile = formData.get("image") as File
@@ -92,34 +90,39 @@ export function SettingsForm() {
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || "Something went wrong")
+        throw new Error(data.error || "Failed to update profile")
       }
 
-      setSuccess(true)
+      toast.success("Profile updated successfully!")
       router.refresh()
-
-      // Show the success message for 2 seconds
-      setTimeout(() => {
-        setSuccess(false)
-      }, 2000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update profile"
+      )
     }
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className="animate-pulse space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="size-24 rounded-full bg-base-300" />
+          <div className="space-y-2">
+            <div className="h-8 w-48 rounded bg-base-300" />
+            <div className="h-4 w-32 rounded bg-base-300" />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (!userData) {
-    return <div className="alert alert-warning">No user data found</div>
+    toast.error("No user data found")
+    return null
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">Profile updated!</div>}
-
       {/* Profile Image */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Profile Picture</h2>

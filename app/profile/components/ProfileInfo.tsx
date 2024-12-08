@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
+import { toast } from "react-hot-toast"
 
 import { ProfileIcon } from "@/components/ui/icons"
 
@@ -15,7 +16,6 @@ type UserData = {
 
 export function ProfileInfo() {
   const [userData, setUserData] = useState<UserData | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function ProfileInfo() {
         const data = await response.json()
         setUserData(data.user)
       } catch (err) {
-        setError(
+        toast.error(
           err instanceof Error ? err.message : "Could not load user data"
         )
       } finally {
@@ -47,12 +47,9 @@ export function ProfileInfo() {
     return <div>Loading...</div>
   }
 
-  if (error) {
-    return <div className="alert alert-error">{error}</div>
-  }
-
   if (!userData) {
-    return <div className="alert alert-warning">No user data found</div>
+    toast.error("No user data found")
+    return null
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
+import { toast } from "react-hot-toast"
 
 import { login } from "./actions"
 
@@ -13,8 +14,15 @@ export function LoginForm() {
     },
   })
 
+  const handleSubmit = async (formData: FormData) => {
+    const result = await loginAction(formData)
+    if (!result?.errors?.email?.length && !result?.errors?.password?.length) {
+      toast.success("Successfully logged in!")
+    }
+  }
+
   return (
-    <form action={loginAction} className="flex max-w-[300px] flex-col gap-2">
+    <form action={handleSubmit} className="flex max-w-[300px] flex-col gap-2">
       <div className="flex flex-col gap-2">
         <input id="email" name="email" placeholder="Email" />
       </div>
