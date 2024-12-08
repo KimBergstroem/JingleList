@@ -1,9 +1,1 @@
-import "@testing-library/jest-dom"
-
-export {}
-
-declare global {
-  interface JestMatchers<R> {
-    toBeInTheDocument(): R
-  }
-}
+import "@testing-library/jest-dom/extend-expect"

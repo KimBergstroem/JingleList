@@ -14,8 +14,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "jest --config jest.config.ts",
+    "test:watch": "jest --watch --config jest.config.ts"
   },
   "dependencies": {
     "@next/font": "^14.2.15",
