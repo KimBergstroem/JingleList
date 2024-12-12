@@ -12,17 +12,17 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
-    (request.nextUrl.pathname.startsWith("/profile") ||
-      request.nextUrl.pathname.startsWith("/wishlist") ||
+    (request.nextUrl.pathname.startsWith("/features/profile") ||
+      request.nextUrl.pathname.startsWith("/features/whishlist") ||
       request.nextUrl.pathname.startsWith("/users")) &&
     !session?.userId
   ) {
-    return NextResponse.redirect(new URL("/auth/login", request.url))
+    return NextResponse.redirect(new URL("/features/auth/login", request.url))
   }
 
   if (
-    (request.nextUrl.pathname.startsWith("/auth/login") ||
-      request.nextUrl.pathname.startsWith("/auth/register")) &&
+    (request.nextUrl.pathname.startsWith("/features/auth/login") ||
+      request.nextUrl.pathname.startsWith("/features/auth/register")) &&
     session?.userId
   ) {
     return NextResponse.redirect(new URL("/", request.url))
@@ -34,10 +34,9 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/profile/:path*",
+    "/features/profile/:path*",
     "/users/:path*",
-    "/auth/login",
-    "/auth/register",
-    "/wishlist",
+    "/features/auth/:path*",
+    "/features/whishlist/:path*",
   ],
 }

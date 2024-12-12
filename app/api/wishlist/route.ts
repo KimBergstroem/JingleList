@@ -20,7 +20,23 @@ export async function GET() {
         userId: String(session.userId),
       },
       include: {
-        items: true,
+        items: {
+          where: {
+            isExternal: false,
+          },
+          include: {
+            purchasedByUser: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     })
 

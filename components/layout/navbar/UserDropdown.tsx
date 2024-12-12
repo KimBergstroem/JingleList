@@ -67,13 +67,17 @@ export default function UserDropdown({ userId }: { userId: string }) {
       </summary>
       <ul className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
         <li>
-          <a onClick={() => handleNavigation("/profile")}>Profile</a>
+          <a onClick={() => handleNavigation("/features/profile")}>Profile</a>
         </li>
         <li>
-          <a onClick={() => handleNavigation("/whishlist")}>My Whishlist</a>
+          <a onClick={() => handleNavigation("/features/whishlist")}>
+            My Whishlist
+          </a>
         </li>
         <li>
-          <a onClick={() => handleNavigation("/profile/settings")}>Settings</a>
+          <a onClick={() => handleNavigation("/features/profile/settings")}>
+            Settings
+          </a>
         </li>
       </ul>
     </details>

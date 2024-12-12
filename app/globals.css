@@ -7,12 +7,3 @@
     @apply container mx-auto max-w-6xl px-4;
   }
 }
-
-/* Stroke animation */
-.animate-draw,
-.animate-draw-delay-1,
-.animate-draw-delay-2,
-.animate-draw-delay-3 {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-}

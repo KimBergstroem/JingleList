@@ -25,25 +25,30 @@ async function getSession(): Promise<SessionPayload | null> {
 }
 
 export async function GET() {
-  const session = await getSession()
-
-  if (!session?.userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   try {
+    const session = await getSession()
+
+    if (!session?.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: session.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+      },
     })
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user
-    return NextResponse.json({ user: userWithoutPassword })
-  } catch {
+    return NextResponse.json({ user })
+  } catch (error) {
+    console.error("[GET_USER_ERROR]", error)
     return NextResponse.json({ error: "Server error" }, { status: 500 })
   }
 }

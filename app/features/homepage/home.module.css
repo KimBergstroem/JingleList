@@ -1,0 +1,19 @@
+/* Card flip animation */
+.card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.card-content,
+.card-back {
+  backface-visibility: hidden;
+}
+
+/* Stroke animation */
+.animate-draw,
+.animate-draw-delay-1,
+.animate-draw-delay-2,
+.animate-draw-delay-3 {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}

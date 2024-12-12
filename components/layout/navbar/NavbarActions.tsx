@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 
-import { logout } from "@/app/auth/login/actions"
+import { logout } from "@/app/features/auth/login/actions"
 
 import UserDropdown from "./UserDropdown"
 
@@ -21,7 +21,7 @@ export default function NavbarActions({ userId }: NavbarActionsProps) {
           <UserDropdown userId={userId} />
         </div>
       ) : (
-        <Link href="/auth/login" className="btn btn-ghost">
+        <Link href="/features/auth/login" className="btn btn-ghost">
           Login
         </Link>
       )}

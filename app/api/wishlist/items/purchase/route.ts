@@ -28,6 +28,12 @@ export async function POST(request: Request) {
       where: { id: itemId },
       include: {
         wishlist: true,
+        purchasedByUser: {
+          select: {
+            name: true,
+            image: true,
+          },
+        },
       },
     })
 
@@ -57,6 +63,14 @@ export async function POST(request: Request) {
       data: {
         purchased: !cancel,
         purchasedBy: cancel ? null : session.userId,
+      },
+      include: {
+        purchasedByUser: {
+          select: {
+            name: true,
+            image: true,
+          },
+        },
       },
     })
 

@@ -20,7 +20,7 @@ type NavLink = {
 
 const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Browse", labelWhenLoggedOut: "Home", prefetch: true },
-  { href: "/about", label: "About", prefetch: false },
+  { href: "/features/about", label: "About", prefetch: false },
 ]
 
 export default function Navbar() {

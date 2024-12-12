@@ -14,8 +14,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { title, description, price, url, priority, wishlistId } =
-      await request.json()
+    const body = await request.json()
+    const { title, price, description, wishlistId, url, priority } = body
 
     if (!wishlistId) {
       return NextResponse.json(
@@ -39,17 +39,17 @@ export async function POST(request: Request) {
     const item = await prisma.wishlistItem.create({
       data: {
         title,
-        description,
         price,
+        description,
+        wishlistId,
         url,
         priority,
-        wishlistId,
       },
     })
 
     return NextResponse.json(item)
   } catch (error) {
-    console.error("Error creating wishlist item:", error)
+    console.error("[WISHLIST_ITEMS_POST]", error)
     return NextResponse.json(
       { error: "Could not add the item" },
       { status: 500 }

@@ -47,6 +47,12 @@ export async function GET() {
             purchased: true,
             purchasedBy: true,
             description: true,
+            purchasedByUser: {
+              select: {
+                name: true,
+                image: true,
+              },
+            },
           },
         },
         _count: {

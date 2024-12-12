@@ -18,6 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="sunset">
+      <head>
+        <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
+      </head>
       <body className="flex min-h-screen flex-col">
         <Navbar />
         <main className="grow py-8">

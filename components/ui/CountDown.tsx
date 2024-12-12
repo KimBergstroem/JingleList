@@ -5,17 +5,28 @@ import { CSSProperties, useEffect, useState } from "react"
 import { calculateTimeUntilChristmas, TimeLeft } from "@/lib/utils/time"
 
 function CountDown() {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(
-    calculateTimeUntilChristmas()
-  )
+  const [mounted, setMounted] = useState(false)
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  })
 
   useEffect(() => {
+    setMounted(true)
+    setTimeLeft(calculateTimeUntilChristmas())
+
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeUntilChristmas())
     }, 1000)
 
     return () => clearInterval(timer)
   }, [])
+
+  if (!mounted) {
+    return null
+  }
 
   return (
     <div className="grid auto-cols-max grid-flow-col gap-2 sm:gap-3 md:gap-5">

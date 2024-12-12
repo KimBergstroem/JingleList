@@ -1,8 +1,8 @@
 "use client"
 
 import CountDown from "@/components/ui/CountDown"
-import { CheckIcon } from "@/components/ui/icons"
-import HomePage from "@/app/homepage/page"
+import { AddExternalIcon, CheckIcon, EyeIcon } from "@/components/ui/icons"
+import HomePage from "@/app/features/homepage/page"
 
 export default function Home() {
   return (
@@ -58,13 +58,42 @@ export default function Home() {
         <h3 className="mb-2 text-base font-semibold sm:text-lg">
           Status Guide
         </h3>
+        <div className="mb-2 flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+          <div className="mb-2 flex items-center gap-2 rounded bg-base-100 px-2 py-1.5 text-sm sm:px-3 sm:py-2 sm:text-base">
+            <button className="btn btn-success btn-xs shrink-0">Buy</button>
+            Item available
+          </div>
+          <span className="text-xs text-base-content/70 sm:text-sm">
+            (This button shows when the item is available to buy)
+          </span>
+        </div>
         <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-2 rounded bg-base-100 px-2 py-1.5 text-sm sm:px-3 sm:py-2 sm:text-base">
+          <div className="mb-2 flex items-center gap-2 rounded bg-base-100 px-2 py-1.5 text-sm sm:px-3 sm:py-2 sm:text-base">
             <CheckIcon className="size-4 text-success sm:size-5" />
             <span>Item purchased</span>
           </div>
           <span className="text-xs text-base-content/70 sm:text-sm">
             (This icon shows when someone has bought the item)
+          </span>
+        </div>
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+          <div className="mb-2 flex items-center gap-2 rounded bg-base-100 px-2 py-1.5 text-sm sm:px-3 sm:py-2 sm:text-base">
+            <EyeIcon className="size-4 text-success sm:size-5" />
+            <span>Hide card</span>
+          </div>
+          <span className="text-xs text-base-content/70 sm:text-sm">
+            (This icons allows you to flip the wishlist card so it can be
+            currently hidden)
+          </span>
+        </div>
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-2 rounded bg-base-100 px-2 py-1.5 text-sm sm:px-3 sm:py-2 sm:text-base">
+            <AddExternalIcon className="size-4 text-success sm:size-5" />
+            <span>Add extra external items</span>
+          </div>
+          <span className="text-xs text-base-content/70 sm:text-sm">
+            (This icon allows you to add external items that have been bought to
+            the users whishlist without the user to know)
           </span>
         </div>
       </div>
