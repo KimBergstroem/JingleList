@@ -18,7 +18,6 @@ export function useUser() {
       setTimeout(() => revalidate({ retryCount }), 5000)
     },
     keepPreviousData: true,
-    fallbackData: { user: null },
   })
 
   return {
