@@ -1,45 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
 
-type UserData = {
-  name: string | null
-  email: string
-  image: string | null
-}
+import { useUser } from "@/app/features/profile/hooks/useUser"
 
 export function SettingsForm() {
   const router = useRouter()
-  const [userData, setUserData] = useState<UserData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-
-  useEffect(() => {
-    async function loadUserData() {
-      try {
-        const response = await fetch("/api/users/me", {
-          credentials: "include",
-        })
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.error || "Could not fetch user data")
-        }
-        const data = await response.json()
-        setUserData(data.user)
-        setImagePreview(data.user.image)
-      } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Could not load user data"
-        )
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadUserData()
-  }, [])
+  const { user, mutate } = useUser()
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    user?.image || null
+  )
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -92,6 +65,7 @@ export function SettingsForm() {
         throw new Error(data.error || "Failed to update profile")
       }
 
+      await mutate()
       toast.success("Profile updated successfully!")
       router.refresh()
     } catch (err) {
@@ -101,21 +75,7 @@ export function SettingsForm() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="animate-pulse space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="size-24 rounded-full bg-base-300" />
-          <div className="space-y-2">
-            <div className="h-8 w-48 rounded bg-base-300" />
-            <div className="h-4 w-32 rounded bg-base-300" />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!userData) {
+  if (!user) {
     toast.error("No user data found")
     return null
   }
@@ -160,7 +120,7 @@ export function SettingsForm() {
             <input
               type="text"
               name="name"
-              defaultValue={userData.name || ""}
+              defaultValue={user.name || ""}
               className="input input-bordered"
               required
               minLength={2}
@@ -174,7 +134,7 @@ export function SettingsForm() {
             <input
               type="email"
               name="email"
-              defaultValue={userData.email}
+              defaultValue={user.email}
               className="input input-bordered"
               required
             />

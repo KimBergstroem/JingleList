@@ -1,58 +1,33 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useRef } from "react"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 import { ProfileIcon } from "@/components/ui/icons"
-
-type UserData = {
-  name: string | null
-  email: string
-  image: string | null
-}
+import { useUser } from "@/app/features/profile/hooks/useUser"
 
 export default function UserDropdown({ userId }: { userId: string }) {
-  const [userData, setUserData] = useState<UserData | null>(null)
+  const { user } = useUser()
   const detailsRef = useRef<HTMLDetailsElement>(null)
   const router = useRouter()
-  const pathname = usePathname()
-
-  const loadUserData = useCallback(async () => {
-    if (!userId) {
-      setUserData(null)
-      return
-    }
-
-    try {
-      const response = await fetch("/api/users/me", {
-        credentials: "include",
-      })
-      if (!response.ok) {
-        setUserData(null)
-        return
-      }
-      const data = await response.json()
-      setUserData(data.user)
-    } catch (error) {
-      setUserData(null)
-      console.error("Could not load user data", error)
-    }
-  }, [userId])
-
-  useEffect(() => {
-    loadUserData()
-  }, [userId, pathname, loadUserData])
 
   if (!userId) return null
+
+  const handleNavigation = (href: string) => {
+    if (detailsRef.current) {
+      detailsRef.current.open = false
+    }
+    router.push(href)
+  }
 
   return (
     <details ref={detailsRef} className="dropdown dropdown-end">
       <summary role="button" className="avatar btn btn-circle btn-ghost">
         <div className="size-10 overflow-hidden rounded-full">
-          {userData?.image ? (
+          {user?.image ? (
             <Image
-              src={userData.image}
+              src={user.image}
               alt="Profile picture"
               width={40}
               height={40}
@@ -82,11 +57,4 @@ export default function UserDropdown({ userId }: { userId: string }) {
       </ul>
     </details>
   )
-
-  function handleNavigation(href: string) {
-    if (detailsRef.current) {
-      detailsRef.current.open = false
-    }
-    router.push(href)
-  }
 }

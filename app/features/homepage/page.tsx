@@ -1,6 +1,7 @@
 "use client"
 
-import { lazy, Suspense, useEffect, useState } from "react"
+import { lazy, Suspense } from "react"
+import useSWR from "swr"
 
 import SkeletonCard from "./components/SkeletonCard"
 
@@ -27,30 +28,26 @@ type Wishlist = {
   }
 }
 
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error("Failed to fetch")
+  }
+  return res.json()
+}
+
 export default function HomePage() {
-  const [wishlists, setWishlists] = useState<Wishlist[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: wishlists, error } = useSWR("/api/wishlist/public", fetcher)
 
-  useEffect(() => {
-    async function fetchWishlists() {
-      try {
-        setIsLoading(true)
-        const response = await fetch("/api/wishlist/public")
-        if (response.ok) {
-          const data = await response.json()
-          setWishlists(data)
-        }
-      } catch (error) {
-        console.error("Error fetching wishlists:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  if (error) {
+    return (
+      <div className="alert alert-error">
+        Error loading wishlists: {error.message}
+      </div>
+    )
+  }
 
-    fetchWishlists()
-  }, [])
-
-  if (isLoading) {
+  if (!wishlists) {
     return (
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(6)].map((_, i) => (
@@ -62,7 +59,7 @@ export default function HomePage() {
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {wishlists.map((wishlist) => (
+      {wishlists.map((wishlist: Wishlist) => (
         <Suspense key={wishlist.id} fallback={<SkeletonCard />}>
           <Card
             userId={wishlist.user.id}

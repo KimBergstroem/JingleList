@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   const session = await decrypt(cookie)
 
   if (request.nextUrl.pathname === "/" && !session?.userId) {
-    return NextResponse.rewrite(new URL("/landing-page", request.url))
+    return NextResponse.rewrite(new URL("features/landing-page", request.url))
   }
 
   if (

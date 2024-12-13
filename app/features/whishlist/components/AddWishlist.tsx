@@ -36,7 +36,7 @@ type WishlistItem = {
   purchased: boolean
 }
 
-type Wishlist = {
+export type Wishlist = {
   id: string
   title: string
   description: string | null

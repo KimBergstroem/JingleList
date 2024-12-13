@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { enGB } from "date-fns/locale"
+import useSWR from "swr"
 
 import { ExternalLinkIcon } from "@/components/ui/icons"
 
@@ -17,29 +17,19 @@ type PurchasedItem = {
   createdAt: string
 }
 
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error("Could not fetch purchased items")
+  return res.json()
+}
+
 export function ShoppingList() {
-  const [purchasedItems, setPurchasedItems] = useState<PurchasedItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  async function loadPurchasedItems() {
-    try {
-      const response = await fetch("/api/purchases")
-      if (!response.ok) {
-        throw new Error("Could not fetch purchased items")
-      }
-      const data = await response.json()
-      setPurchasedItems(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadPurchasedItems()
-  }, [])
+  const {
+    data: purchasedItems,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR("/api/purchases", fetcher)
 
   const handleCancelPurchase = async (itemId: string) => {
     try {
@@ -56,10 +46,9 @@ export function ShoppingList() {
       }
 
       // Uppdatera listan direkt efter avbokning
-      await loadPurchasedItems()
+      await mutate()
     } catch (error) {
       console.error("Error canceling purchase:", error)
-      setError("Failed to cancel purchase")
     }
   }
 
@@ -68,10 +57,10 @@ export function ShoppingList() {
   }
 
   if (error) {
-    return <div className="alert alert-error">{error}</div>
+    return <div className="alert alert-error">{error.message}</div>
   }
 
-  if (purchasedItems.length === 0) {
+  if (!purchasedItems || purchasedItems.length === 0) {
     return (
       <div className="alert alert-info">
         You haven&apos;t purchased any items yet
@@ -80,7 +69,7 @@ export function ShoppingList() {
   }
 
   const totalAmount = purchasedItems.reduce(
-    (sum, item) => sum + (item.price || 0),
+    (sum: number, item: PurchasedItem) => sum + (item.price || 0),
     0
   )
 
@@ -106,7 +95,7 @@ export function ShoppingList() {
         </div>
       </div>
       <div className="divide-y divide-base-300">
-        {purchasedItems.map((item) => (
+        {purchasedItems.map((item: PurchasedItem) => (
           <div key={item.id} className="py-4">
             <div className="flex items-start justify-between gap-4">
               <div className="grow space-y-2">

@@ -10,7 +10,6 @@ export const metadata: Metadata = {
   title: "JingleList | Keep your surprises intact",
   description: "Share and update wish lists with family and friends",
 }
-
 export default function RootLayout({
   children,
 }: Readonly<{
