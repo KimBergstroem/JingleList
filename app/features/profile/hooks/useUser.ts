@@ -12,7 +12,13 @@ export function useUser() {
   const { data, error, isLoading, mutate } = useSWR("/api/users/me", fetcher, {
     revalidateOnFocus: false,
     revalidateIfStale: false,
-    dedupingInterval: 600000, // Cache i 10 minuter
+    dedupingInterval: 600000,
+    retryCount: 3,
+    onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+      setTimeout(() => revalidate({ retryCount }), 5000)
+    },
+    keepPreviousData: true,
+    fallbackData: { user: null },
   })
 
   return {

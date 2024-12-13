@@ -29,11 +29,42 @@ type Wishlist = {
 }
 
 const fetcher = async (url: string) => {
-  const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error("Failed to fetch")
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 20000)
+
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      next: { revalidate: 0 },
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!res.ok) {
+      const errorText = await res.text()
+      throw new Error(errorText || `HTTP error! status: ${res.status}`)
+    }
+
+    const text = await res.text()
+    try {
+      return JSON.parse(text)
+    } catch (e) {
+      console.error("JSON Parse Error:", e)
+      console.error("Raw response:", text.substring(0, 200))
+      throw new Error("Ogiltig JSON-respons från servern")
+    }
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      "name" in error &&
+      error.name === "AbortError"
+    ) {
+      throw new Error("Förfrågan tog för lång tid")
+    }
+    throw error
+  } finally {
+    clearTimeout(timeoutId)
   }
-  return res.json()
 }
 
 export default function HomePage() {

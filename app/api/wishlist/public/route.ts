@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
@@ -7,24 +8,13 @@ import { decrypt } from "@/app/lib/session"
 export const revalidate = 60
 export const dynamic = "force-dynamic"
 
-export async function GET() {
-  try {
-    const cookieStore = await cookies()
-    const sessionToken = cookieStore.get("session")?.value
-    const session = await decrypt(sessionToken)
-    const currentUserId = session?.userId
-
-    const wishlists = await prisma.wishlist.findMany({
+const getCachedWishlists = unstable_cache(
+  async (userId: string | undefined) => {
+    return prisma.wishlist.findMany({
       take: 10,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
       where: {
-        userId: currentUserId
-          ? {
-              not: String(currentUserId),
-            }
-          : undefined,
+        userId: userId ? { not: userId } : undefined,
       },
       select: {
         id: true,
@@ -37,9 +27,7 @@ export async function GET() {
           },
         },
         items: {
-          orderBy: {
-            createdAt: "desc",
-          },
+          orderBy: { createdAt: "desc" },
           select: {
             id: true,
             title: true,
@@ -56,14 +44,33 @@ export async function GET() {
           },
         },
         _count: {
-          select: {
-            items: true,
-          },
+          select: { items: true },
         },
       },
     })
+  },
+  ["public-wishlists"],
+  { revalidate: 60 }
+)
 
-    return NextResponse.json(wishlists)
+export async function GET() {
+  try {
+    const cookieStore = await cookies()
+    const sessionToken = cookieStore.get("session")?.value
+    const session = await decrypt(sessionToken)
+    const currentUserId = session?.userId
+    const wishlists = await getCachedWishlists(currentUserId as string)
+
+    const sanitizedWishlists = wishlists.map((wishlist) => ({
+      ...wishlist,
+      items: wishlist.items.map((item) => ({
+        ...item,
+        description: item.description || null,
+        purchasedByUser: item.purchasedByUser || null,
+      })),
+    }))
+
+    return NextResponse.json(sanitizedWishlists)
   } catch (error) {
     console.error("Error fetching public wishlists:", error)
     return NextResponse.json(
