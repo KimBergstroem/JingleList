@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client"
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
@@ -12,33 +14,29 @@ const prismaClientSingleton = () => {
     },
   })
 
-  // Lägg till performance monitoring med middleware
-  prisma.$extends({
-    query: {
-      $allOperations: async ({ operation, model, args, query }) => {
-        const start = performance.now()
-        const result = await query(args)
-        const end = performance.now()
+  // Använd middleware istället för $extends för bättre typkompatibilitet
+  prisma.$use(async (params, next) => {
+    const start = performance.now()
+    const result = await next(params)
+    const end = performance.now()
+    const duration = end - start
 
-        if (end - start > 1000) {
-          console.warn(`Slow query detected (${end - start}ms):`, {
-            model,
-            operation,
-          })
-        }
+    if (duration > 1000) {
+      console.warn(`Slow query detected (${duration.toFixed(2)}ms):`, {
+        model: params.model,
+        operation: params.action,
+        timestamp: new Date().toISOString(),
+      })
+    }
 
-        return result
-      },
-    },
+    return result
   })
 
   return prisma
 }
 
-const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma
 }
-
-export { prisma }
